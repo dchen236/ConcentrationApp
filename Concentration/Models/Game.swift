@@ -12,7 +12,7 @@ struct Game{
     var cards = [Card]()
     var indexOfOneAndOnlyFaceUp:Int?
     var score:Int = 0
-    var chosenTheme:String
+    var chosenTheme:Theme
     var emojies:[Theme:[String]] = [.animal:["🐶","🦊","🐻","🐷","🙊","🦇","🦄","🦋","🐍","🐢","🦖","🐙","🐫","🦚","🐩"],
                                     .smileyFace:["😇","🥰","🥳","🥶","🤢","😈","👻","🤣","🥺","🎃","💩","😙","🤪","😱"],
                                     .wheather:["🔥","🌈","🌪","☀️","🌧","❄️","☃️","💦","🌊","⛈","🌩","☄️","🌬","💨"],
@@ -24,7 +24,7 @@ struct Game{
     
     
     
-    init(numberOfPairs:Int) {
+    init(numberOfPairs:Int,theme:Theme) {
         if numberOfPairs%2 != 0 {
             print("number of pairs must be multiple of two cause 4 cards per row")
         }
@@ -34,7 +34,7 @@ struct Game{
                 cards+=[card,card]
             }
         }
-        chosenTheme = "??"
+        chosenTheme = theme
         shuffleCards()
         
         
