@@ -9,18 +9,48 @@
 import UIKit
 
 class PromotionController: UIViewController {
-   
+    var pickedThemeButton:UIButton?{
+        willSet{
+                pickedThemeButton?.layer.borderWidth = 0
+                pickedThemeButton?.layer.borderColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
+                pickedThemeButton?.isSelected = false
+        }
+        didSet{
+            
+                pickedThemeButton?.layer.borderWidth = 5
+                pickedThemeButton?.layer.borderColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        }
+    }
+    var pickedPairNumberButton:UIButton?{
+        willSet{
+                pickedPairNumberButton?.layer.borderWidth = 0
+                pickedPairNumberButton?.layer.borderColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
+                pickedPairNumberButton?.isSelected = false
+        }
+        didSet{
+
+                pickedPairNumberButton?.layer.borderWidth = 5
+                pickedPairNumberButton?.layer.borderColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        }
+    }
     var numberofPair:Int?{
         didSet{
             if theme != nil{
                 newGameButton.isHidden = false
             }
+            else{
+                newGameButton.isHidden = true
+            }
+      
         }
     }
     var theme:Theme?{
         didSet{
             if numberofPair != nil{
                 newGameButton.isHidden = false
+            }
+            else{
+                newGameButton.isHidden = true
             }
         }
     }
@@ -41,26 +71,53 @@ class PromotionController: UIViewController {
         return buttons
 
     }()
+    
+    fileprivate func alertAction(){
+        let alertControler = UIAlertController(title: "Unclear Intention", message: "You have picked one theme and number of pairs already,do you want to pick again?", preferredStyle: .alert)
+        let rePick = UIAlertAction(title: "Yes", style:.default) { (_) in
+            self.numberofPair = nil
+            self.theme = nil
+            self.pickedThemeButton = nil
+            self.pickedPairNumberButton = nil
+        }
+        alertControler.addAction(rePick)
+        let startGame = UIAlertAction(title: "no,start game with exsiting choices", style: .default) { (_) in
+            self.newGame()
+        }
+        alertControler.addAction(startGame)
+        self.present(alertControler, animated: true, completion: nil)
+    }
+    
     @objc private func buttonSelected(sender:UIButton){
-        sender.layer.borderWidth = 5
-        sender.layer.borderColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
+        if numberofPair != nil && theme != nil{
+            alertAction()
+        }
+     
         switch sender.titleLabel?.text {
         case "Animal":
             theme = .animal
+            pickedThemeButton = sender
         case "Smiley Face":
             theme = .smileyFace
+            pickedThemeButton = sender
         case "Wheather":
             theme = .wheather
+            pickedThemeButton = sender
         case "Fruit":
             theme = .fruit
+            pickedThemeButton = sender
         case "Flag":
             theme = .flag
+            pickedThemeButton = sender
         case "\(8) pairs":
             numberofPair = 8
+            pickedPairNumberButton = sender
         case "\(10) pairs":
             numberofPair = 10
+            pickedPairNumberButton = sender
         case "\(12) pairs":
             numberofPair = 12
+            pickedPairNumberButton = sender
         default:
             break
         }
@@ -71,8 +128,8 @@ class PromotionController: UIViewController {
         let pairsNumberButton = UIButton().createButtonWithTitle(title: "Number of pairs")
         pairsNumberButton.backgroundColor = #colorLiteral(red: 1, green: 1, blue: 1, alpha: 1)
         buttons.append(pairsNumberButton)
-        for i in 2...3{
-            let button = UIButton().createButtonWithTitle(title: "\(i*4) pairs")
+        for i in 0...2{
+            let button = UIButton().createButtonWithTitle(title: "\(8+2*i) pairs")
             button.addTarget(self, action: #selector(buttonSelected(sender:)), for: .touchUpInside)
             buttons.append(button)
         }
@@ -89,7 +146,7 @@ class PromotionController: UIViewController {
         button.setTitleColor(#colorLiteral(red: 0, green: 0, blue: 0, alpha: 1), for: .normal)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 5
-        button.layer.backgroundColor = #colorLiteral(red: 0.2392156869, green: 0.6745098233, blue: 0.9686274529, alpha: 1)
+        button.layer.backgroundColor = #colorLiteral(red: 0.4745098054, green: 0.8392156959, blue: 0.9764705896, alpha: 1)
         button.layer.borderWidth = 3
         button.layer.borderColor = #colorLiteral(red: 0.1764705926, green: 0.4980392158, blue: 0.7568627596, alpha: 1)
         button.titleLabel?.font = UIFont.boldSystemFont(ofSize: 20)
@@ -98,9 +155,12 @@ class PromotionController: UIViewController {
     }()
     
     @objc fileprivate func newGame(){
-        print("New game pressed")
-        print("\(numberofPair!)")
-        print("\(theme!)")
+        let vc = GameController(numberOfPairs: numberofPair!, gameTheme: theme!)
+        let window = UIApplication.shared.windows[0]
+       // let window = UIApplication.shared.windows[0] as UIWindow
+        UIView.transition(with: window, duration: 0.3, options: .curveEaseOut, animations: {
+            window.rootViewController = vc
+        }, completion: nil)
     }
     
     fileprivate func setUpLabels() {
@@ -134,8 +194,11 @@ class PromotionController: UIViewController {
     }
     
     override func viewDidLoad() {
-        
         super.viewDidLoad()
+
+        self.navigationController?.navigationBar.backgroundColor = #colorLiteral(red: 0, green: 0, blue: 0, alpha: 1)
+        self.title = "Welcome to Concentration!"
+        self.navigationController?.navigationBar.prefersLargeTitles = false
         view.backgroundColor = .white
         setUpLabels()
         setUpNewGameButton()
@@ -192,13 +255,6 @@ extension UIView{
         
     }
     
-    /*
-     // MARK: - Navigation
-     
-     // In a storyboard-based application, you will often want to do a little preparation before navigation
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-     // Get the new view controller using segue.destination.
-     // Pass the selected object to the new view controller.
-     }
-     */
+ 
 }
+
