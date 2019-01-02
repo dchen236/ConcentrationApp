@@ -8,10 +8,10 @@
 
 import UIKit
 
-class ViewController: UIViewController {
+class GameController: UIViewController {
 //    properties
     private let numberOfCardsPerRow = 4
-    private let numberOfPairs = 10  //must be a multiple of 2
+    var numberOfPairs = 10 //must be a multiple of 2
     var game:Game!
     var identifierToEmojies = [Int:String]()
     
@@ -25,6 +25,19 @@ class ViewController: UIViewController {
         didSet{
             flipsCountLabel.text = "Flips:\(flips)"
         }
+    }
+    
+    convenience init(numberOfPairs:Int,gameTheme:Theme){
+        self.init(nibName: nil, bundle: nil)
+        self.numberOfPairs = numberOfPairs
+        game = Game(numberOfPairs: numberOfPairs, theme: gameTheme)
+    }
+    
+    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+    }
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     lazy var cardButtons:[UIButton] = {
@@ -82,7 +95,7 @@ class ViewController: UIViewController {
         }
         else{
             let randomIndex = Int.random(in:0..<game.emojies.count)
-            let randomEmoji = game.emojies[.smileyFace]!.remove(at: randomIndex)
+            let randomEmoji = game.emojies[game.chosenTheme]!.remove(at: randomIndex)
             identifierToEmojies[identifier] = randomEmoji
             return randomEmoji
         }
@@ -97,10 +110,12 @@ class ViewController: UIViewController {
     }()
     
     @objc func newGamePressed(){
-        game = Game(numberOfPairs: numberOfPairs)
-        flips = 0
-        score = 0
-        updateUI()
+        
+        let PromotionControler = PromotionController()
+        let window = UIApplication.shared.windows[0]
+        UIView.transition(with: window, duration: 0.3, options: .curveEaseOut, animations: {
+            window.rootViewController = PromotionControler
+        }, completion: nil)
     }
     
     let flipsCountLabel:UILabel = {
@@ -128,9 +143,8 @@ class ViewController: UIViewController {
   
     override func viewDidLoad() {
         super.viewDidLoad()
+        view.backgroundColor = .white
         setUpViews()
-//        initialize game
-        game = Game(numberOfPairs: numberOfPairs)
     }
     
   
